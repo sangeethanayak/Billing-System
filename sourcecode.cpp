@@ -214,3 +214,36 @@ void shopping :: add()
   cout << setw (88);
   cout<<"Record inserted"<<endl<<endl;
 }
+void shopping::rem()
+{
+    int no;
+    cout<<setw(91);
+    cout<<"Enter item code to delete: ";
+    cin>>no;
+    ofstream file2;
+    file2.open("new.dat", ios::out|ios::binary);
+    data.open("database.dat", ios::in|ios::binary);
+    if(!data)
+    {
+        cout<<setw(88);
+        cout<<"File not found";
+        exit(0);
+    }
+    else{
+        data.read((char*)&it, sizeof(it));
+        while(!data.eof())
+        {
+            if(no!=it.get_code())
+            {
+                file2.write((char*)&it, sizeof(it));
+            }
+            data.read((char*)&it, sizeof(it));
+            
+        }
+
+    }
+    file2.close();
+    data.close();
+    remove("database.dat");
+    rename("new.dat","database.dat");
+}
