@@ -156,7 +156,54 @@ void item :: delete_record()
     rename("new.dat","stock.dat");
 
 }
+void item:: modify_record(void)
+{
+    int no;
+    string name;
+    float pr, dis;
+    cout<<endl;
 
+    cout<<setw(95);
+    cout<<"Enter Product code to modify: ";
+    cin>>no;
+
+    file.open("stock.dat", ios::in|ios::out|ios::binary);
+    if(!file)
+    {
+        cout<<setw(85);
+        cout<<"File not found";
+        exit(0);
+    }
+
+    while(file.read((char*)&it, sizeof(it)))
+    {
+        if(it.get_code()==no)
+        {
+            cout<<"\t\t\t\t\t\t--------------------------------------------------------------"<<endl;
+            cout << setw (88);
+            cout<<"Modify Product details"<<endl;
+            cout<<"\t\t\t\t\t\t--------------------------------------------------------------"<<endl;
+            cout<<setw(85);
+            cout<<"Enter new name of the product: ";
+            cin>>name;
+            cout<<setw(67);
+            cout<<"Enter price: ";
+            cin>>pr;
+            cout<<setw(70);
+            cout<<"Enter discount: ";
+            cin>>dis;
+            it.update_discount(dis);
+            it.update_price(pr);
+            it.update_name(name);
+
+            int pos = sizeof(it);
+            file.seekp(-pos, ios::cur);
+            file.write((char*)&it, sizeof(it));
+        }
+
+    }
+    file.close();
+}
 
 
 
