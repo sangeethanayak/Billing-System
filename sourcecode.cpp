@@ -4,7 +4,60 @@
 #include <cstdio>
 #include <string>
 #include <conio.h>
+
 using namespace std;
+
+class item
+{
+private:
+    int pcode;
+    string name;
+    float discount;
+    float price;
+public:
+    void get_item (void);
+    void put_item (void);
+    void admin();
+    void customer();
+    void add_record();
+    void menu();
+    void delete_record();
+    void modify_record();
+    void show_all(void);
+    void show_record();
+    void receipt();
+    int get_code(void)
+    {
+        return pcode;
+    }
+    float get_price(void)
+    {
+        return price;
+    }
+    float get_discount(void)
+    {
+        return discount;
+    }
+    string get_name(void)
+    {
+        return name;
+    }
+    void update_discount(float dis)
+    {
+        discount=dis;
+    }
+    void update_price(float pr)
+    {
+        price=pr;
+    }
+    void update_name(string n)
+    {
+        name = n;
+    }
+};
+
+item it;
+fstream file;
 
 void item :: get_item(void)
 {
@@ -26,14 +79,12 @@ void item :: get_item(void)
      cin>>discount;
      cout<<endl;
 }
-void item :: put_item (void)
+
+void item :: put_item(void)
 {
-
     cout<<setw(65)<<pcode<<setw(10)<<name<<setw(10)<<price<<setw(12)<<discount<<endl;
-
 }
-item it;
-fstream file;
+
 
 void item:: add_record()
 {
@@ -41,7 +92,7 @@ void item:: add_record()
     file.open("stock.dat", ios::app | ios::binary);
     while(ch=='y'||ch=='Y')
     {
-    it.get_item();
+     it.get_item();
 
     file.write((char*)&it, sizeof(it));
     cout<<setw(85);
@@ -51,6 +102,7 @@ void item:: add_record()
 }
 file.close();
 }
+
 void item::show_all(void)
 {
     file.open("stock.dat", ios::in | ios::binary);
@@ -69,16 +121,16 @@ void item::show_all(void)
         cout<<"Product Details"<<endl;
         cout<<"\t\t\t\t\t\t--------------------------------------------------------------"<<endl;
         cout<<setw(67)<<"CODE"<<setw(10)<<"NAME"<<setw(10)<<"PRICE"<<setw(12)<<"DISCOUNT"<<endl;
-        while(! file.eof())
+        while(!file.eof())
         {
 
             it.put_item();
             file.read((char*)&it, sizeof(it));
         }
-        cout<<endl;
     }
     file.close();
 }
+
 void item:: show_record(void)
 {
     int no, flag=0;
@@ -156,6 +208,7 @@ void item :: delete_record()
     rename("new.dat","stock.dat");
 
 }
+
 void item:: modify_record(void)
 {
     int no;
@@ -205,9 +258,69 @@ void item:: modify_record(void)
     file.close();
 }
 
+void item :: receipt()
+{
 
+    int order_arr[50], quan[50], c = 0;
+    float amt, damt, total = 0;
+    char ch = 'Y';
+    show_all();
+    cout<<endl;
+    cout<<"\t\t\t\t\t\t--------------------------------------------------------------"<<endl;
+    cout << setw (88);
+    cout<<"Place your order"<<endl;
+    cout<<"\t\t\t\t\t\t--------------------------------------------------------------"<<endl;
+    do
+    {
+        cout<<endl;
+        cout << setw (93);
+        cout<<"Enter the code of the product: ";
+        cin >> order_arr[c];
+        cout << setw (88);
+        cout<<"Enter quantity in number: ";
+        cin >> quan[c];
+        c++;
+        cout<<endl;
+        cout<<setw(99);
+        cout<<"Do you want to purchase more product? (y/n): ";
+        cin>>ch;
+    } while (ch == 'y' || ch == 'Y');
+    cout<<endl;
+    cout<<setw(99);
+    cout << "*****Thank You For Placing The Order*****";
+    cout<<endl<<endl;
+    cout<<"\t\t\t\t\t\t--------------------------------------------------------------"<<endl;
+    cout << setw (83);
+    cout<<"INVOICE"<<endl;
+    cout<<"\t\t\t\t\t\t--------------------------------------------------------------"<<endl;
+    cout<<endl;
+    cout<<setw(55)<<"Pr. No."<<setw(10)<<"Pr. Name"<<setw(6)<<"Qt."<<setw(8)<<"Price"<<setw(8)<<"Amt."<<setw(22)<<"Amt. after discount"<<endl;
+    cout<<endl;
+    for (int x = 0; x <= c; x++)
+    {
+        file.open("stock.dat", ios:: in );
+        file.read((char * ) &it, sizeof(it));
+        while (!file.eof())
+        {
+            if (it.get_code() == order_arr[x])
+            {
+                amt = it.get_price() * quan[x];
+                damt = amt - (amt * it.get_discount() / 100);
+                cout << setw(52) << order_arr[x] << setw(12) << it.get_name() << setw(6) << quan[x] << setw(7) << it.get_price() << setw(8) << amt << setw(16) << damt<<endl;
+                total += damt;
+            }
+            file.read((char * ) & it, sizeof(it));
+        }
 
-
+        file.close();
+    }
+    cout<<endl;
+    cout<<"\t\t\t\t\t\t--------------------------------------------------------------"<<endl;
+    cout << setw (95);
+    cout<<"TOTAL = "<<total<<endl;
+    cout<<"\t\t\t\t\t\t--------------------------------------------------------------"<<endl;
+    getch();
+}
 
 void item :: admin()
 {
@@ -256,9 +369,11 @@ void item :: admin()
     default:
         cout<<setw(85);
         cout<<"Invalid choice";
+        exit(0);
     }
    goto Admin;
 }
+
 void item :: customer()
 {
     Customer:
@@ -269,12 +384,13 @@ void item :: customer()
     cout<<"\t\t\t\t\t\t--------------------------------------------------------------"<<endl;
     cout << setw (85);
     cout<<"1. Buy product"<<endl;
-    cout<<setw(85);
+    cout<<setw(81);
     cout<<"2. Go Back"<<endl<<endl;
     cout << setw (89);
     cout<<"Enter your option: ";
     cin>>choice;
     cout<<endl;
+
     switch(choice)
     {
     case 1:
@@ -284,10 +400,15 @@ void item :: customer()
         menu();
         break;
     default:
-        cout<<"Invalid Choice"<<endl;
+        {
+            cout<<setw(93);
+            cout<<"Invalid choice! Try again!"<<endl;
+            exit(0);
+        }
     }
     goto Customer;
 }
+
 void item :: menu()
 {
     Menu:
@@ -323,7 +444,7 @@ void item :: menu()
         cout<<"Enter password: ";
         cin>>password;
         cout<<endl<<endl;
-        if(email=="1234" && password=="1234")
+        if(email=="Rishi@123.gmail.com" && password=="121212")
         {
             admin();
         }
@@ -347,9 +468,17 @@ void item :: menu()
         break;
     default:
         {
+            cout<<setw(93);
             cout<<"Invalid choice! Try again!"<<endl;
-            goto Menu;
+            exit(0);
         }
     }
 goto Menu;
+}
+
+
+int main()
+{
+    item option;
+    option.menu();
 }
